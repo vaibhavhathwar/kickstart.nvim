@@ -554,7 +554,20 @@ do
   local builtin = require 'telescope.builtin'
   vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
   vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-  vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+  vim.keymap.set('n', '<leader>sf', function()
+    builtin.find_files({
+      hidden = true,
+      find_command = {
+        'rg', '--files', '--hidden',
+        '-g', '!**/.git/**',
+        '-g', '!**/__pycache__/**',
+        '-g', '!**/*.pyc',
+        '-g', '!**/.pytest_cache/**',
+        '-g', '!**/.mypy_cache/**',
+        '-g', '!**/.ruff_cache/**',
+      },
+    })
+  end, { desc = '[S]earch [F]iles' })
   vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
   vim.keymap.set({ 'n', 'v' }, '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
   vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
@@ -1018,7 +1031,7 @@ do
   -- require 'kickstart.plugins.indent_line'
   -- require 'kickstart.plugins.lint'
  require 'kickstart.plugins.autopairs'
-  -- require 'kickstart.plugins.neo-tree'
+   require 'kickstart.plugins.neo-tree'
 
   -- NOTE: You can add your own plugins, configuration, etc. in `lua/custom/plugins/*.lua`.
   --
@@ -1037,3 +1050,43 @@ end
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+-- ============================================================
+-- SECTION 11: Personal customizations
+-- ============================================================
+
+-- ==========================================
+-- Terminal Manager: Full-width bottom panel
+-- ==========================================
+vim.pack.add {
+  {
+    src = 'https://github.com/akinsho/toggleterm.nvim',
+    version = vim.version.range '*',
+  },
+}
+
+require('toggleterm').setup {
+  size = 12,
+  direction = 'horizontal',
+  persist_size = true,
+  persist_mode = true,
+  open_mapping = nil,
+}
+
+
+-- Toggle numbered terminal sessions
+for i = 1, 9 do
+  vim.keymap.set('n', '<leader>t' .. i, function()
+    vim.cmd(i .. 'ToggleTerm')
+  end, { desc = 'Toggle terminal ' .. i })
+end
+
+
+-- ============================================================
+
+-- Toggle file explorer
+vim.keymap.set('n', '<leader>e', '<Cmd>Neotree toggle<CR>', {
+  desc = 'Toggle file explorer',
+})
+
+-- ============================================================
